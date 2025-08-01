@@ -4,8 +4,8 @@ from pydantic import BaseModel
 app = FastAPI()
 
 licencas = {
-    "cliente1@gmail.com": "ABC123-XYZ456",
-    "cliente2@teste.com": "XYZ999-AAA000"
+    "trdevx@gmail.com": "ABC123-XYZ456",
+    "dudamoon@gmail.com": "XYZ999-AAA000"
 }
 
 class DadosLicenca(BaseModel):
