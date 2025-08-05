@@ -17,3 +17,7 @@ def validar(dados: DadosLicenca):
     if licencas.get(dados.email.lower()) == dados.chave:
         return {"status": "validado"}
     return {"status": "invalido"}
+
+@app.get("/")
+def index():
+    return {"mensagem": "API LuxTrader está online"}
