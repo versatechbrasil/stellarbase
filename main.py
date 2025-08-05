@@ -1,15 +1,18 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import psycopg2
+import requests
+import os
 
 app = FastAPI()
 
-# 🔐 Dados de conexão com o Supabase
-SUPABASE_URL = "postgresql://postgres:Ltx#93fP!rZq7sWd@db.vtedtjaggqajirelkcsi.supabase.co:5432/postgres"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# 📌 Conexão única
-conn = psycopg2.connect(SUPABASE_URL)
-cursor = conn.cursor()
+HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json"
+}
 
 class DadosLicenca(BaseModel):
     email: str
@@ -18,10 +21,16 @@ class DadosLicenca(BaseModel):
 @app.post("/validar")
 def validar(dados: DadosLicenca):
     try:
-        cursor.execute("SELECT chave FROM licencas WHERE email = %s", (dados.email.lower(),))
-        resultado = cursor.fetchone()
+        email = dados.email.lower()
+        chave = dados.chave
 
-        if resultado and resultado[0] == dados.chave:
+        # 🔍 Consulta via API REST do Supabase
+        response = requests.get(
+            f"{SUPABASE_URL}/rest/v1/licencas?email=eq.{email}&chave=eq.{chave}",
+            headers=HEADERS
+        )
+
+        if response.status_code == 200 and response.json():
             return {"status": "validado"}
         else:
             return {"status": "invalido"}
